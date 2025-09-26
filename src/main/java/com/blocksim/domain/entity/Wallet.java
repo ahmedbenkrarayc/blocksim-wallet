@@ -1,5 +1,9 @@
 package com.blocksim.domain.entity;
 
+import com.blocksim.domain.enums.TransactionPriority;
+import com.blocksim.domain.enums.TransactionStatus;
+
+import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
 
@@ -47,4 +51,25 @@ public abstract class Wallet {
     public void setTransactions(Set<Transaction> transactions) {
         this.transactions = transactions;
     }
+
+    //methods
+    public abstract double calculateFee(double amount, TransactionPriority priority);
+
+    public Transaction createTransaction(String destinationAddress, double amount, TransactionPriority priority) {
+        Transaction transaction = new Transaction(
+                UUID.randomUUID(),
+                this.address,
+                destinationAddress,
+                amount,
+                0,
+                priority,
+                TransactionStatus.PENDING,
+                LocalDateTime.now()
+        );
+
+        transactions.add(transaction);
+
+        return transaction;
+    }
+
 }
