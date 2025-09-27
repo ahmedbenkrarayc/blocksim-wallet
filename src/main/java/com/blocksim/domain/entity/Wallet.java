@@ -53,7 +53,7 @@ public abstract class Wallet {
     }
 
     //methods
-    public abstract double calculateFee(double amount, TransactionPriority priority);
+    public abstract double calculateFee(Transaction transaction);
 
     public Transaction createTransaction(String destinationAddress, double amount, TransactionPriority priority) {
         Transaction transaction = new Transaction(
