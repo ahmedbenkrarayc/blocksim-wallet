@@ -8,11 +8,9 @@ import com.blocksim.infrastructure.config.DatabaseConfig;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public class WalletRepositoryImpl implements WalletRepository {
     @Override
@@ -44,22 +42,112 @@ public class WalletRepositoryImpl implements WalletRepository {
             }
 
         }catch(SQLException e){
-            throw new RuntimeException("Failed to fetch user", e);
+            throw new RuntimeException("Failed to fetch wallet", e);
         }
     }
 
     @Override
     public Optional<Wallet> findById(UUID id) {
-        return Optional.empty();
+        String sql = "SELECT w.id, w.address, w.balance, b.wallet_id AS btc_id, e.wallet_id AS eth_id"+
+            "FROM wallets w"+
+            "LEFT JOIN bitcoin_wallets b ON w.id = b.wallet_id"+
+            "LEFT JOIN ethereum_wallets e ON w.id = e.wallet_id"+
+            "WHERE w.id = ?";
+
+        try (Connection conn = DatabaseConfig.getInstance().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, id.toString());
+            ResultSet rs = stmt.executeQuery();
+
+            if (!rs.next()) return Optional.empty();
+
+            UUID walletId = UUID.fromString(rs.getString("id"));
+            String address = rs.getString("address");
+            double balance = rs.getDouble("balance");
+
+            Wallet wallet = null;
+            if (rs.getString("btc_id") != null) {
+                wallet = new BitcoinWallet(walletId, address, balance, null);
+            } else if (rs.getString("eth_id") != null) {
+                wallet = new EthereumWallet(walletId, address, balance, null);
+            }
+
+            return Optional.ofNullable(wallet);
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to find wallet", e);
+        }
     }
 
     @Override
     public Optional<Wallet> findWalletByAddress(String address) {
-        return Optional.empty();
+        String sql = "SELECT w.id, w.address, w.balance, b.wallet_id AS btc_id, e.wallet_id AS eth_id"+
+                "FROM wallets w"+
+                "LEFT JOIN bitcoin_wallets b ON w.id = b.wallet_id"+
+                "LEFT JOIN ethereum_wallets e ON w.id = e.wallet_id"+
+                "WHERE w.address = ?";
+
+        try (Connection conn = DatabaseConfig.getInstance().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, address);
+            ResultSet rs = stmt.executeQuery();
+
+            if (!rs.next()) return Optional.empty();
+
+            UUID walletId = UUID.fromString(rs.getString("id"));
+            double balance = rs.getDouble("balance");
+
+            Wallet wallet = null;
+            if (rs.getString("btc_id") != null) {
+                wallet = new BitcoinWallet(walletId, address, balance, null);
+            } else if (rs.getString("eth_id") != null) {
+                wallet = new EthereumWallet(walletId, address, balance, null);
+            }
+
+            return Optional.ofNullable(wallet);
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to find wallet", e);
+        }
     }
 
     @Override
     public List<Wallet> findAll() {
-        return Collections.emptyList();
+        List<Wallet> wallets = new ArrayList<>();
+
+        String sql = "SELECT w.id, w.address, w.balance, " +
+                "b.wallet_id AS btc_id, e.wallet_id AS eth_id " +
+                "FROM wallets w " +
+                "LEFT JOIN bitcoin_wallets b ON w.id = b.wallet_id " +
+                "LEFT JOIN ethereum_wallets e ON w.id = e.wallet_id";
+
+        try (Connection conn = DatabaseConfig.getInstance().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                UUID walletId = UUID.fromString(rs.getString("id"));
+                String address = rs.getString("address");
+                double balance = rs.getDouble("balance");
+
+                Wallet wallet = null;
+                if (rs.getString("btc_id") != null) {
+                    wallet = new BitcoinWallet(walletId, address, balance, null);
+                } else if (rs.getString("eth_id") != null) {
+                    wallet = new EthereumWallet(walletId, address, balance, null);
+                }
+
+                if (wallet != null) {
+                    wallets.add(wallet);
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to fetch all wallets", e);
+        }
+
+        return wallets;
     }
 }
