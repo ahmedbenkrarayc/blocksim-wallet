@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 javac -cp "lib/*" -d out $(find src/main/java -name "*.java")
 
