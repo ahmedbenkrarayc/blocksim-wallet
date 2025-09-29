@@ -22,6 +22,8 @@ public class WalletRepositoryImpl implements WalletRepository {
                 stmt.setString(1, wallet.getId().toString());
                 stmt.setString(2, wallet.getAddress());
                 stmt.setDouble(3, wallet.getBalance());
+                stmt.setString(4, wallet.getAddress());
+                stmt.setDouble(5, wallet.getBalance());
                 stmt.executeUpdate();
             }
 
