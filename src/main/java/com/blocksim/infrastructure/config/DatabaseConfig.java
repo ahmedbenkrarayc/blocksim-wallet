@@ -8,9 +8,14 @@ public class DatabaseConfig {
     private static DatabaseConfig instance;
     private Connection connection;
 
-    private static final String DB_URL = System.getenv("DB_HOST");
-    private static final String DB_USER = System.getenv("DB_USER");
-    private static final String DB_PASSWORD = System.getenv("DB_PASSWORD");
+    private static final String DB_URL =
+            "jdbc:mysql://" + System.getenv("DB_HOST") + ":" +
+                    System.getenv("DB_PORT") + "/" +
+                    System.getenv("MYSQL_DATABASE") +
+                    "?allowPublicKeyRetrieval=true&useSSL=false";
+
+    private static final String DB_USER = System.getenv("MYSQL_USER");
+    private static final String DB_PASSWORD = System.getenv("MYSQL_PASSWORD");
 
     private DatabaseConfig() {
         try {
