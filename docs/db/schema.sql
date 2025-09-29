@@ -1,23 +1,20 @@
-CREATE TABLE Wallet (
+CREATE TABLE wallet (
     id CHAR(36) PRIMARY KEY,
     address VARCHAR(255) NOT NULL,
     balance DOUBLE NOT NULL DEFAULT 0
 );
 
-CREATE TABLE BitcoinWallet (
+CREATE TABLE bitcoin_wallet (
    wallet_id CHAR(36) PRIMARY KEY,
-   SATOSHI_PER_BYTE DOUBLE NOT NULL,
-   CONSTRAINT fk_bitcoin_wallet FOREIGN KEY (wallet_id) REFERENCES Wallet(id) ON DELETE CASCADE
+   CONSTRAINT fk_bitcoin_wallet FOREIGN KEY (wallet_id) REFERENCES wallet(id) ON DELETE CASCADE
 );
 
-CREATE TABLE EthereumWallet (
+CREATE TABLE ethereum_wallet (
     wallet_id CHAR(36) PRIMARY KEY,
-    GAS_PRICE DOUBLE NOT NULL,
-    GAS_LIMIT INT NOT NULL,
-    CONSTRAINT fk_ethereum_wallet FOREIGN KEY (wallet_id) REFERENCES Wallet(id) ON DELETE CASCADE
+    CONSTRAINT fk_ethereum_wallet FOREIGN KEY (wallet_id) REFERENCES wallet(id) ON DELETE CASCADE
 );
 
-CREATE TABLE Transaction (
+CREATE TABLE transaction (
     id CHAR(36) PRIMARY KEY,
     wallet_id CHAR(36) NOT NULL,
     sourceAddress VARCHAR(255) NOT NULL,
@@ -28,5 +25,5 @@ CREATE TABLE Transaction (
     sizeInBytes INT NOT NULL,
     priority ENUM('ECONOMIQUE', 'STANDARD', 'RAPIDE') NOT NULL DEFAULT 'STANDARD',
     status ENUM('PENDING', 'CONFIRMED', 'REJECTED') NOT NULL DEFAULT 'PENDING',
-    CONSTRAINT fk_transaction_wallet FOREIGN KEY (wallet_id) REFERENCES Wallet(id) ON DELETE CASCADE
+    CONSTRAINT fk_transaction_wallet FOREIGN KEY (wallet_id) REFERENCES wallet(id) ON DELETE CASCADE
 );
