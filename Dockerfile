@@ -6,4 +6,4 @@ COPY . .
 
 RUN chmod +x build-run.sh
 
-CMD ["./build-run.sh"]
+CMD ./build-run.sh
