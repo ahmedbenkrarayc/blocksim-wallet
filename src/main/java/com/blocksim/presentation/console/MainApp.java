@@ -2,19 +2,24 @@ package com.blocksim.presentation.console;
 
 import com.blocksim.domain.enums.TransactionPriority;
 import com.blocksim.infrastructure.config.ApplicationContext;
+import com.blocksim.presentation.controller.MempoolController;
 import com.blocksim.presentation.controller.WalletController;
+import com.blocksim.presentation.dto.request.MempoolRequestDTO;
 import com.blocksim.presentation.dto.request.TransactionRequestDTO;
 import com.blocksim.presentation.dto.request.WalletRequestDTO;
+import com.blocksim.presentation.dto.response.MempoolResponseDTO;
 import com.blocksim.presentation.dto.response.TransactionResponseDTO;
 import com.blocksim.presentation.dto.response.WalletResponseDTO;
 
 import java.util.Scanner;
+import java.util.UUID;
 
 public class MainApp {
 
     public static void main(String[] args) {
         ApplicationContext context = ApplicationContext.getInstance();
         WalletController walletController = new WalletController(context.getWalletService());
+        MempoolController mempoolController = new MempoolController(context.getMempoolService());
 
         Scanner scanner = new Scanner(System.in);
 
@@ -25,6 +30,7 @@ public class MainApp {
             System.out.println("\n--- Menu ---");
             System.out.println("1. Create Wallet");
             System.out.println("2. Create Transaction");
+            System.out.println("3. Check Transaction Position in Mempool");
             System.out.println("0. Exit");
             System.out.print("Enter your choice: ");
 
@@ -54,7 +60,8 @@ public class MainApp {
                     } catch (IllegalArgumentException e) {
                         System.out.println("Error: " + e.getMessage());
                     }
-                break;
+                    break;
+
                 case 2:
                     System.out.print("Enter source wallet address: ");
                     String sourceAddress = scanner.nextLine().trim();
@@ -101,9 +108,40 @@ public class MainApp {
                     } catch (IllegalArgumentException e) {
                         System.out.println("Error: " + e.getMessage());
                     }
-                break;
-                case 0: System.out.println("Exiting... Goodbye!"); break;
-                default: System.out.println("Invalid choice, please try again.");
+                    break;
+
+                case 3:
+                    System.out.print("Enter transaction ID: ");
+                    String txIdInput = scanner.nextLine().trim();
+
+                    try {
+                        UUID txId = UUID.fromString(txIdInput);
+
+                        MempoolResponseDTO mempoolResponse = mempoolController.checkTransactionPosition(
+                                new MempoolRequestDTO(txId)
+                        );
+
+                        if (mempoolResponse.isFound()) {
+                            System.out.println("Your transaction is at position " +
+                                    mempoolResponse.getPosition() + " out of " +
+                                    mempoolResponse.getTotal());
+                            System.out.printf("Estimated confirmation time: %.1f minutes%n",
+                                    mempoolResponse.getEstimatedTime());
+                        } else {
+                            System.out.println("Transaction not found in the mempool.");
+                        }
+
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("Invalid UUID format.");
+                    }
+                    break;
+
+                case 0:
+                    System.out.println("Exiting... Goodbye!");
+                    break;
+
+                default:
+                    System.out.println("Invalid choice, please try again.");
             }
 
         } while (choice != 0);
