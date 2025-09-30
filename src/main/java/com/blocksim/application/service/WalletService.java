@@ -15,8 +15,8 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class WalletService {
-    private WalletRepository walletRepository;
-    private TransactionRepository transactionRepository;
+    private final WalletRepository walletRepository;
+    private final TransactionRepository transactionRepository;
 
     public WalletService(WalletRepository walletRepository, TransactionRepository transactionRepository) {
         this.walletRepository = walletRepository;
