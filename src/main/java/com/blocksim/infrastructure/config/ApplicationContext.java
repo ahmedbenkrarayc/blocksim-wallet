@@ -1,26 +1,28 @@
 package com.blocksim.infrastructure.config;
 
 import com.blocksim.application.service.WalletService;
+import com.blocksim.domain.entity.Transaction;
+import com.blocksim.domain.repository.TransactionRepository;
 import com.blocksim.domain.repository.WalletRepository;
+import com.blocksim.infrastructure.persistence.TransactionRepositoryImpl;
 import com.blocksim.infrastructure.persistence.WalletRepositoryImpl;
 
 public class ApplicationContext {
 
-    private static ApplicationContext instance;
+    private static final ApplicationContext INSTANCE = new ApplicationContext();
 
-    private final WalletService walletService;
     private final WalletRepository walletRepository;
+    private final TransactionRepository transactionRepository;
+    private final WalletService walletService;
 
     private ApplicationContext() {
         this.walletRepository = new WalletRepositoryImpl();
-        this.walletService = new WalletService(walletRepository);
+        this.transactionRepository = new TransactionRepositoryImpl();
+        this.walletService = new WalletService(walletRepository, transactionRepository);
     }
 
-    public static synchronized ApplicationContext getInstance() {
-        if (instance == null) {
-            instance = new ApplicationContext();
-        }
-        return instance;
+    public static ApplicationContext getInstance() {
+        return INSTANCE;
     }
 
     public WalletService getWalletService() {
@@ -29,5 +31,8 @@ public class ApplicationContext {
 
     public WalletRepository getWalletRepository() {
         return walletRepository;
+    }
+    public TransactionRepository getTransactionRepository() {
+        return transactionRepository;
     }
 }
