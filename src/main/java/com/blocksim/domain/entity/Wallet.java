@@ -67,6 +67,8 @@ public abstract class Wallet {
                 LocalDateTime.now()
         );
 
+        transaction.setFee(calculateFee(transaction));
+
         transactions.add(transaction);
 
         return transaction;
