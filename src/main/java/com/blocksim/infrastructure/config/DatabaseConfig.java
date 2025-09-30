@@ -38,6 +38,14 @@ public class DatabaseConfig {
     }
 
     public Connection getConnection() {
+        try {
+            if (connection == null || connection.isClosed()) {
+                connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to reconnect to DB", e);
+        }
+
         return connection;
     }
 }
