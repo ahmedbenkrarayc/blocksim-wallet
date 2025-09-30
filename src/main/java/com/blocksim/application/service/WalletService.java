@@ -1,18 +1,26 @@
 package com.blocksim.application.service;
 
+import com.blocksim.application.service.util.TransactionValidator;
 import com.blocksim.application.service.util.WalletValidator;
 import com.blocksim.domain.entity.BitcoinWallet;
 import com.blocksim.domain.entity.EthereumWallet;
+import com.blocksim.domain.entity.Transaction;
 import com.blocksim.domain.entity.Wallet;
+import com.blocksim.domain.enums.TransactionPriority;
+import com.blocksim.domain.enums.TransactionStatus;
+import com.blocksim.domain.repository.TransactionRepository;
 import com.blocksim.domain.repository.WalletRepository;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class WalletService {
     private WalletRepository walletRepository;
+    private TransactionRepository transactionRepository;
 
-    public WalletService(WalletRepository walletRepository) {
+    public WalletService(WalletRepository walletRepository, TransactionRepository transactionRepository) {
         this.walletRepository = walletRepository;
+        this.transactionRepository = transactionRepository;
     }
 
     public Wallet createWallet(String type) {
@@ -40,5 +48,18 @@ public class WalletService {
         walletRepository.save(wallet);
 
         return wallet;
+    }
+
+    public Transaction createTransaction(String sourceAddress, String destinationAddress, double amount, TransactionPriority priority) {
+        //validation
+        TransactionValidator.validateAdresses(sourceAddress, destinationAddress);
+        TransactionValidator.validateAmount(amount);
+
+        Wallet wallet = walletRepository.findWalletByAddress(sourceAddress)
+                .orElseThrow(() -> new IllegalArgumentException("Wallet not found with this source address"));
+
+        Transaction transaction = wallet.createTransaction(destinationAddress, amount, priority);
+        transactionRepository.save(wallet.getId(), transaction);
+        return transaction;
     }
 }
