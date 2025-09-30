@@ -50,15 +50,15 @@ public class WalletService {
         return wallet;
     }
 
-    public Transaction createTransaction(String sourceAddress, String destinationAddress, double amount, TransactionPriority priority) {
+    public Transaction createTransaction(String sourceAddress, String destinationAddress, double amount, TransactionPriority priority, int sizeInByte) {
         //validation
         TransactionValidator.validateAdresses(sourceAddress, destinationAddress);
         TransactionValidator.validateAmount(amount);
 
         Wallet wallet = walletRepository.findWalletByAddress(sourceAddress)
                 .orElseThrow(() -> new IllegalArgumentException("Wallet not found with this source address"));
-
-        Transaction transaction = wallet.createTransaction(destinationAddress, amount, priority);
+        
+        Transaction transaction = wallet.createTransaction(destinationAddress, amount, priority, sizeInByte);
         transactionRepository.save(wallet.getId(), transaction);
         return transaction;
     }

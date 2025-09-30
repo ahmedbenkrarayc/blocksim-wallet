@@ -4,6 +4,7 @@ import com.blocksim.domain.enums.TransactionPriority;
 import com.blocksim.domain.enums.TransactionStatus;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -17,7 +18,7 @@ public abstract class Wallet {
         this.id = id != null ? id : UUID.randomUUID();
         this.address = address;
         this.balance = balance;
-        this.transactions = transactions;
+        this.transactions = transactions != null ? transactions : new HashSet<>();
     }
 
     public UUID getId() {
@@ -55,7 +56,7 @@ public abstract class Wallet {
     //methods
     public abstract double calculateFee(Transaction transaction);
 
-    public Transaction createTransaction(String destinationAddress, double amount, TransactionPriority priority) {
+    public Transaction createTransaction(String destinationAddress, double amount, TransactionPriority priority, int sizeInByte) {
         Transaction transaction = new Transaction(
                 UUID.randomUUID(),
                 this.address,
@@ -64,12 +65,13 @@ public abstract class Wallet {
                 0,
                 priority,
                 TransactionStatus.PENDING,
-                LocalDateTime.now()
+                LocalDateTime.now(),
+                sizeInByte
         );
 
         transaction.setFee(calculateFee(transaction));
 
-        transactions.add(transaction);
+        this.transactions.add(transaction);
 
         return transaction;
     }

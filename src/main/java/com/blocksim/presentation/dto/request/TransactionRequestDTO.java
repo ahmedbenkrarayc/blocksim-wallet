@@ -7,11 +7,14 @@ public class TransactionRequestDTO {
     private  String destinationAddress;
     private double amount;
     private TransactionPriority priority;
+    private int sizeInByte;
 
-    public TransactionRequestDTO(String sourceAddress, String destinationAddress, double amount) {
+    public TransactionRequestDTO(String sourceAddress, String destinationAddress, double amount, int sizeInByte, TransactionPriority priority) {
         this.sourceAddress = sourceAddress;
         this.destinationAddress = destinationAddress;
         this.amount = amount;
+        this.sizeInByte = sizeInByte;
+        this.priority = priority;
     }
 
     public String getSourceAddress() {
@@ -28,5 +31,9 @@ public class TransactionRequestDTO {
 
     public TransactionPriority getPriority() {
         return priority;
+    }
+
+    public int getSizeInByte() {
+        return sizeInByte;
     }
 }

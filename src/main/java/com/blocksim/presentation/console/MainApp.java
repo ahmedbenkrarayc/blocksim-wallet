@@ -1,5 +1,6 @@
 package com.blocksim.presentation.console;
 
+import com.blocksim.domain.enums.TransactionPriority;
 import com.blocksim.infrastructure.config.ApplicationContext;
 import com.blocksim.presentation.controller.WalletController;
 import com.blocksim.presentation.dto.request.TransactionRequestDTO;
@@ -70,9 +71,24 @@ public class MainApp {
                         continue;
                     }
 
+                    System.out.print("Enter size in bytes: ");
+                    int size_in_bytes = scanner.nextInt();
+
+                    System.out.print("Enter transaction priority (ECONOMIQUE, STANDARD, RAPIDE): ");
+                    scanner.nextLine();
+                    String priorityInput = scanner.nextLine().trim().toUpperCase();
+
+                    TransactionPriority priority;
+                    try {
+                        priority = TransactionPriority.valueOf(priorityInput);
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("Invalid priority, using STANDARD by default.");
+                        priority = TransactionPriority.STANDARD;
+                    }
+
                     try {
                         TransactionResponseDTO txResponse = walletController.createTransaction(
-                                new TransactionRequestDTO(sourceAddress, destinationAddress, amount)
+                                new TransactionRequestDTO(sourceAddress, destinationAddress, amount, size_in_bytes, priority)
                         );
 
                         System.out.println("\nTransaction created successfully!");

@@ -58,7 +58,8 @@ public class TransactionRepositoryImpl implements TransactionRepository {
                             rs.getDouble("fee"),
                             TransactionPriority.valueOf(rs.getString("priority")),
                             TransactionStatus.valueOf(rs.getString("status")),
-                            rs.getTimestamp("createdAt").toLocalDateTime()
+                            rs.getTimestamp("createdAt").toLocalDateTime(),
+                            rs.getInt("sizeInBytes")
                     );
                     transaction.setSizeInBytes(rs.getInt("sizeInBytes"));
                     return Optional.of(transaction);
@@ -90,7 +91,8 @@ public class TransactionRepositoryImpl implements TransactionRepository {
                         rs.getDouble("fee"),
                         TransactionPriority.valueOf(rs.getString("priority")),
                         TransactionStatus.valueOf(rs.getString("status")),
-                        rs.getTimestamp("createdAt").toLocalDateTime()
+                        rs.getTimestamp("createdAt").toLocalDateTime(),
+                        rs.getInt("sizeInBytes")
                 );
                 transaction.setSizeInBytes(rs.getInt("sizeInBytes"));
                 transactions.add(transaction);

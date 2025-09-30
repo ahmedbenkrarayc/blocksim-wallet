@@ -51,10 +51,10 @@ public class WalletRepositoryImpl implements WalletRepository {
     @Override
     public Optional<Wallet> findById(UUID id) {
         String sql = "SELECT w.id, w.address, w.balance, b.wallet_id AS btc_id, e.wallet_id AS eth_id"+
-            "FROM wallets w"+
-            "LEFT JOIN bitcoin_wallets b ON w.id = b.wallet_id"+
-            "LEFT JOIN ethereum_wallets e ON w.id = e.wallet_id"+
-            "WHERE w.id = ?";
+            " FROM wallet w"+
+            " LEFT JOIN bitcoin_wallet b ON w.id = b.wallet_id"+
+            " LEFT JOIN ethereum_wallet e ON w.id = e.wallet_id"+
+            " WHERE w.id = ?";
 
         try (Connection conn = DatabaseConfig.getInstance().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -85,10 +85,10 @@ public class WalletRepositoryImpl implements WalletRepository {
     @Override
     public Optional<Wallet> findWalletByAddress(String address) {
         String sql = "SELECT w.id, w.address, w.balance, b.wallet_id AS btc_id, e.wallet_id AS eth_id"+
-                "FROM wallets w"+
-                "LEFT JOIN bitcoin_wallets b ON w.id = b.wallet_id"+
-                "LEFT JOIN ethereum_wallets e ON w.id = e.wallet_id"+
-                "WHERE w.address = ?";
+                " FROM wallet w"+
+                " LEFT JOIN bitcoin_wallet b ON w.id = b.wallet_id"+
+                " LEFT JOIN ethereum_wallet e ON w.id = e.wallet_id"+
+                " WHERE w.address = ?";
 
         try (Connection conn = DatabaseConfig.getInstance().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -121,9 +121,9 @@ public class WalletRepositoryImpl implements WalletRepository {
 
         String sql = "SELECT w.id, w.address, w.balance, " +
                 "b.wallet_id AS btc_id, e.wallet_id AS eth_id " +
-                "FROM wallets w " +
-                "LEFT JOIN bitcoin_wallets b ON w.id = b.wallet_id " +
-                "LEFT JOIN ethereum_wallets e ON w.id = e.wallet_id";
+                "FROM wallet w " +
+                "LEFT JOIN bitcoin_wallet b ON w.id = b.wallet_id " +
+                "LEFT JOIN ethereum_wallet e ON w.id = e.wallet_id";
 
         try (Connection conn = DatabaseConfig.getInstance().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);

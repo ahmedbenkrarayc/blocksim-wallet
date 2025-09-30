@@ -28,7 +28,7 @@ public class WalletController {
     }
 
     public TransactionResponseDTO createTransaction(TransactionRequestDTO requestDTO) {
-        Transaction transaction = walletService.createTransaction(requestDTO.getSourceAddress(), requestDTO.getDestinationAddress(), requestDTO.getAmount(), requestDTO.getPriority());
+        Transaction transaction = walletService.createTransaction(requestDTO.getSourceAddress(), requestDTO.getDestinationAddress(), requestDTO.getAmount(), requestDTO.getPriority(), requestDTO.getSizeInByte());
 
         return new TransactionResponseDTO(
                 transaction.getId(),

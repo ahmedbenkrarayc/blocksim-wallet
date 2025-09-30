@@ -17,12 +17,13 @@ public class Transaction {
     private TransactionStatus status;
     private LocalDateTime createdAt;
 
-    public Transaction(UUID id, String sourceAddress, String destinationAddress, double amount, double fee, TransactionPriority priority, TransactionStatus status, LocalDateTime createdAt) {
+    public Transaction(UUID id, String sourceAddress, String destinationAddress, double amount, double fee, TransactionPriority priority, TransactionStatus status, LocalDateTime createdAt, int sizeInBytes) {
         this.id = id != null ? id : UUID.randomUUID();
         this.sourceAddress = sourceAddress;
         this.destinationAddress = destinationAddress;
         this.amount = amount;
         this.fee = fee;
+        this.sizeInBytes = sizeInBytes;
         this.priority = priority;
         this.status = status;
         this.createdAt = createdAt != null ? createdAt : LocalDateTime.now();
