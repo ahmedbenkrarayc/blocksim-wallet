@@ -1,13 +1,13 @@
 package com.blocksim.application.service;
 
 import com.blocksim.domain.entity.Transaction;
+import com.blocksim.domain.entity.Wallet;
+import com.blocksim.domain.enums.TransactionPriority;
 import com.blocksim.domain.enums.TransactionStatus;
 import com.blocksim.domain.repository.TransactionRepository;
+import com.blocksim.presentation.dto.response.FeeComparisonResponseDTO;
 
-import java.util.List;
-import java.util.OptionalDouble;
-import java.util.OptionalInt;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class MempoolService {
@@ -49,4 +49,38 @@ public class MempoolService {
         }
         return OptionalDouble.empty();
     }
+
+    public List<FeeComparisonResponseDTO> compareFeeLevels(Transaction tx, Wallet wallet, int txPerBlock) {
+        List<FeeComparisonResponseDTO> result = new ArrayList<>();
+
+        for (TransactionPriority priority : TransactionPriority.values()) {
+            Transaction tempTx = new Transaction(
+                    tx.getId(),
+                    tx.getSourceAddress(),
+                    tx.getDestinationAddress(),
+                    tx.getAmount(),
+                    0.0,
+                    priority,
+                    TransactionStatus.PENDING,
+                    null,
+                    tx.getSizeInBytes()
+            );
+
+            double fee = wallet.calculateFee(tempTx);
+
+            List<Transaction> pending = getPendingTransactions();
+            int position = 1;
+            for (Transaction t : pending) {
+                if (t.getFee() > fee) position++;
+            }
+
+            double estTime = ((double) position / txPerBlock) * BLOCK_TIME_MINS;
+
+            result.add(new FeeComparisonResponseDTO(priority.name(), fee, position, estTime));
+        }
+
+        return result;
+    }
+
+
 }
