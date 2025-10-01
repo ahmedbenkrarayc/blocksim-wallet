@@ -17,6 +17,10 @@ public class LoggerConfig {
         Logger rootLogger = Logger.getLogger("");
         rootLogger.setLevel(Level.ALL);
 
+        for (Handler handler : rootLogger.getHandlers()) {
+            rootLogger.removeHandler(handler);
+        }
+
         try {
             Files.createDirectories(Paths.get(LOG_FILE).getParent());
 

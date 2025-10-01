@@ -3,8 +3,11 @@ package com.blocksim.infrastructure.config;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.logging.Logger;
 
 public class DatabaseConfig {
+    private static final Logger logger = LoggerConfig.getLogger(DatabaseConfig.class);
+
     private static DatabaseConfig instance;
     private Connection connection;
 
@@ -19,9 +22,11 @@ public class DatabaseConfig {
 
     private DatabaseConfig() {
         try {
+            LoggerConfig.init();
             Class.forName("com.mysql.cj.jdbc.Driver");
             this.connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
         } catch (SQLException | ClassNotFoundException e) {
+            logger.severe(e.getMessage());
             throw new RuntimeException("Failed to initialize DB connection", e);
         }
     }
@@ -43,6 +48,7 @@ public class DatabaseConfig {
                 connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
             }
         } catch (SQLException e) {
+            logger.severe(e.getMessage());
             throw new RuntimeException("Failed to reconnect to DB", e);
         }
 

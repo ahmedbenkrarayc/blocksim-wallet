@@ -5,19 +5,23 @@ import com.blocksim.domain.entity.Wallet;
 import com.blocksim.domain.enums.TransactionPriority;
 import com.blocksim.domain.enums.TransactionStatus;
 import com.blocksim.domain.repository.TransactionRepository;
+import com.blocksim.infrastructure.config.LoggerConfig;
 import com.blocksim.presentation.dto.response.FeeComparisonResponseDTO;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class MempoolService {
     private final TransactionRepository transactionRepository;
     private final Random rand = new Random();
     private final static int BLOCK_TIME_MINS = 10;
+    private static final Logger logger = LoggerConfig.getLogger(WalletService.class);
 
     public MempoolService(TransactionRepository transactionRepository) {
         this.transactionRepository = transactionRepository;
+        LoggerConfig.init();
     }
 
     public List<Transaction> getPendingTransactions() {
@@ -32,10 +36,12 @@ public class MempoolService {
         int position = 1;
         for (Transaction tx : pending) {
             if (tx.getId().equals(txId)) {
+                logger.info("Transaction found in position "+position+" out of "+pending.size()+" in getTransactionPosition");
                 return OptionalInt.of(position);
             }
             position++;
         }
+        logger.info("Transaction not found in getTransactionPosition");
         return OptionalInt.empty();
     }
 
@@ -49,6 +55,7 @@ public class MempoolService {
                 return OptionalDouble.of(estimatedBlocks * BLOCK_TIME_MINS);
             }
         }
+        logger.info("Transaction not found, in estimateTime");
         return OptionalDouble.empty();
     }
 
@@ -132,7 +139,7 @@ public class MempoolService {
         transactionRepository.findById(myTxId).ifPresent(mempool::add);
 
         mempool.sort((t1, t2) -> Double.compare(t2.getFee(), t1.getFee()));
-
+        logger.info("Mempool found "+mempool.size()+" transactions");
         return mempool;
     }
 

@@ -5,12 +5,19 @@ import com.blocksim.domain.enums.TransactionPriority;
 import com.blocksim.domain.enums.TransactionStatus;
 import com.blocksim.domain.repository.TransactionRepository;
 import com.blocksim.infrastructure.config.DatabaseConfig;
+import com.blocksim.infrastructure.config.LoggerConfig;
 
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.logging.Logger;
 
 public class TransactionRepositoryImpl implements TransactionRepository {
+    private static final Logger logger = LoggerConfig.getLogger(TransactionRepositoryImpl.class);
+
+    public TransactionRepositoryImpl() {
+        LoggerConfig.init();
+    }
 
     @Override
     public void save(UUID walletId, Transaction transaction) {
@@ -35,6 +42,7 @@ public class TransactionRepositoryImpl implements TransactionRepository {
             stmt.executeUpdate();
 
         } catch (SQLException e) {
+            logger.severe(e.getMessage());
             throw new RuntimeException("Error saving transaction", e);
         }
     }
@@ -67,6 +75,7 @@ public class TransactionRepositoryImpl implements TransactionRepository {
             }
 
         } catch (SQLException e) {
+            logger.severe(e.getMessage());
             throw new RuntimeException("Error finding transaction by id", e);
         }
 
@@ -99,6 +108,7 @@ public class TransactionRepositoryImpl implements TransactionRepository {
             }
 
         } catch (SQLException e) {
+            logger.severe(e.getMessage());
             throw new RuntimeException("Error finding all transactions", e);
         }
 

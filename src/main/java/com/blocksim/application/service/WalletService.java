@@ -10,17 +10,22 @@ import com.blocksim.domain.enums.TransactionPriority;
 import com.blocksim.domain.enums.TransactionStatus;
 import com.blocksim.domain.repository.TransactionRepository;
 import com.blocksim.domain.repository.WalletRepository;
+import com.blocksim.infrastructure.config.LoggerConfig;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 public class WalletService {
     private final WalletRepository walletRepository;
     private final TransactionRepository transactionRepository;
+    private static final Logger logger = LoggerConfig.getLogger(WalletService.class);
+
 
     public WalletService(WalletRepository walletRepository, TransactionRepository transactionRepository) {
         this.walletRepository = walletRepository;
         this.transactionRepository = transactionRepository;
+        LoggerConfig.init();
     }
 
     public Wallet createWallet(String type) {
@@ -37,16 +42,20 @@ public class WalletService {
                 break;
 
             case "ethereum":
-                address = "0x" + UUID.randomUUID().toString().replace("-", "").substring(0, 40);
+                String ethAddress = "0x" + java.util.UUID.randomUUID().toString()
+                        .replace("-", "")
+                        + java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 8);
+                address = ethAddress.substring(0, 42);
                 wallet = new EthereumWallet(walletId, address, 0.0, null);
                 break;
 
             default:
+                logger.severe("Unsupported wallet type: " + type);
                 throw new IllegalArgumentException("Unsupported wallet type: " + type);
         }
 
         walletRepository.save(wallet);
-
+        logger.info("Wallet created: " + wallet.getId());
         return wallet;
     }
 
@@ -60,6 +69,7 @@ public class WalletService {
         
         Transaction transaction = wallet.createTransaction(destinationAddress, amount, priority, sizeInByte);
         transactionRepository.save(wallet.getId(), transaction);
+        logger.info("Transaction created: " + transaction.getId());
         return transaction;
     }
 }

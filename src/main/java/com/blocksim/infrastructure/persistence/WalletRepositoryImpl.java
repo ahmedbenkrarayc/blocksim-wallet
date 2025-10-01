@@ -5,14 +5,22 @@ import com.blocksim.domain.entity.EthereumWallet;
 import com.blocksim.domain.entity.Wallet;
 import com.blocksim.domain.repository.WalletRepository;
 import com.blocksim.infrastructure.config.DatabaseConfig;
+import com.blocksim.infrastructure.config.LoggerConfig;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.logging.Logger;
 
 public class WalletRepositoryImpl implements WalletRepository {
+    private static final Logger logger = LoggerConfig.getLogger(WalletRepositoryImpl.class);
+
+    public WalletRepositoryImpl() {
+        LoggerConfig.init();
+    }
+
     @Override
     public void save(Wallet wallet) {
         try(Connection connection = DatabaseConfig.getInstance().getConnection()){
@@ -35,7 +43,7 @@ public class WalletRepositoryImpl implements WalletRepository {
                     btsmtmt.executeUpdate();
                 }
             }else if(wallet instanceof EthereumWallet){
-                String ethSql = "INSERT INTO ethereum_wallets (wallet_id) VALUES (?) " +
+                String ethSql = "INSERT INTO ethereum_wallet (wallet_id) VALUES (?) " +
                         "ON DUPLICATE KEY UPDATE wallet_id = wallet_id";
                 try (PreparedStatement ethStmt = connection.prepareStatement(ethSql)) {
                     ethStmt.setString(1, wallet.getId().toString());
@@ -44,6 +52,7 @@ public class WalletRepositoryImpl implements WalletRepository {
             }
 
         }catch(SQLException e){
+            logger.severe(e.getMessage());
             throw new RuntimeException("Failed to fetch wallet", e);
         }
     }
@@ -78,6 +87,7 @@ public class WalletRepositoryImpl implements WalletRepository {
             return Optional.ofNullable(wallet);
 
         } catch (SQLException e) {
+            logger.severe(e.getMessage());
             throw new RuntimeException("Failed to find wallet", e);
         }
     }
@@ -111,6 +121,7 @@ public class WalletRepositoryImpl implements WalletRepository {
             return Optional.ofNullable(wallet);
 
         } catch (SQLException e) {
+            logger.severe(e.getMessage());
             throw new RuntimeException("Failed to find wallet", e);
         }
     }
@@ -147,6 +158,7 @@ public class WalletRepositoryImpl implements WalletRepository {
             }
 
         } catch (SQLException e) {
+            logger.severe(e.getMessage());
             throw new RuntimeException("Failed to fetch all wallets", e);
         }
 
