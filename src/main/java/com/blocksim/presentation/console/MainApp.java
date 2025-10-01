@@ -1,5 +1,7 @@
 package com.blocksim.presentation.console;
 
+import com.blocksim.domain.entity.Transaction;
+import com.blocksim.domain.entity.Wallet;
 import com.blocksim.domain.enums.TransactionPriority;
 import com.blocksim.infrastructure.config.ApplicationContext;
 import com.blocksim.presentation.controller.MempoolController;
@@ -7,10 +9,13 @@ import com.blocksim.presentation.controller.WalletController;
 import com.blocksim.presentation.dto.request.MempoolRequestDTO;
 import com.blocksim.presentation.dto.request.TransactionRequestDTO;
 import com.blocksim.presentation.dto.request.WalletRequestDTO;
+import com.blocksim.presentation.dto.response.FeeComparisonResponseDTO;
 import com.blocksim.presentation.dto.response.MempoolResponseDTO;
 import com.blocksim.presentation.dto.response.TransactionResponseDTO;
 import com.blocksim.presentation.dto.response.WalletResponseDTO;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.Scanner;
 import java.util.UUID;
 
@@ -31,6 +36,7 @@ public class MainApp {
             System.out.println("1. Create Wallet");
             System.out.println("2. Create Transaction");
             System.out.println("3. Check Transaction Position in Mempool");
+            System.out.println("4. Compare 3 fee levels");
             System.out.println("0. Exit");
             System.out.print("Enter your choice: ");
 
@@ -135,7 +141,43 @@ public class MainApp {
                         System.out.println("Invalid UUID format.");
                     }
                     break;
+                case 4:
+                    System.out.print("Enter transaction ID: ");
+                    String feeTxIdInput = scanner.nextLine().trim();
 
+                    try {
+                        UUID feeTxId = UUID.fromString(feeTxIdInput);
+
+                        Optional<Transaction> tx = context.getTransactionRepository().findById(feeTxId);
+                        if (!tx.isPresent()) {
+                            System.out.println("Transaction not found.");
+                            break;
+                        }
+
+                        Optional<Wallet> wallet = context.getWalletRepository().findWalletByAddress(tx.get().getSourceAddress());
+                        if (!wallet.isPresent()) {
+                            System.out.println("Wallet not found.");
+                            break;
+                        }
+
+                        List<FeeComparisonResponseDTO> comparisonList =
+                                mempoolController.compareFeeLevels(tx.get(), wallet.get(), 5);
+
+                        System.out.println("+-----------+-----------+----------+----------------------+");
+                        System.out.println("| Priority  | Fee       | Position | Est. Confirmation   |");
+                        System.out.println("+-----------+-----------+----------+----------------------+");
+
+                        for (FeeComparisonResponseDTO row : comparisonList) {
+                            System.out.printf("| %-9s | %9.8f | %8d | %20.1f |\n",
+                                    row.getPriority(), row.getFee(), row.getPosition(), row.getEstimatedTime());
+                        }
+
+                        System.out.println("+-----------+-----------+----------+----------------------+");
+
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("Invalid UUID format.");
+                    }
+                    break;
                 case 0:
                     System.out.println("Exiting... Goodbye!");
                     break;
