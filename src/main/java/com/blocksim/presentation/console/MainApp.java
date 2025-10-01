@@ -9,10 +9,7 @@ import com.blocksim.presentation.controller.WalletController;
 import com.blocksim.presentation.dto.request.MempoolRequestDTO;
 import com.blocksim.presentation.dto.request.TransactionRequestDTO;
 import com.blocksim.presentation.dto.request.WalletRequestDTO;
-import com.blocksim.presentation.dto.response.FeeComparisonResponseDTO;
-import com.blocksim.presentation.dto.response.MempoolResponseDTO;
-import com.blocksim.presentation.dto.response.TransactionResponseDTO;
-import com.blocksim.presentation.dto.response.WalletResponseDTO;
+import com.blocksim.presentation.dto.response.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -37,6 +34,7 @@ public class MainApp {
             System.out.println("2. Create Transaction");
             System.out.println("3. Check Transaction Position in Mempool");
             System.out.println("4. Compare 3 fee levels");
+            System.out.println("5. View Current Mempool");
             System.out.println("0. Exit");
             System.out.print("Enter your choice: ");
 
@@ -173,6 +171,34 @@ public class MainApp {
                         }
 
                         System.out.println("+-----------+-----------+----------+----------------------+");
+
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("Invalid UUID format.");
+                    }
+                    break;
+
+                case 5:
+                    System.out.print("Enter your transaction ID to highlight: ");
+                    String myTxIdInput = scanner.nextLine().trim();
+
+                    try {
+                        UUID myTxId = UUID.fromString(myTxIdInput);
+
+                        List<MempoolTransactionDTO> mempool = mempoolController.getMempool(myTxId);
+
+                        System.out.println("\n=== ÉTAT DU MEMPOOL ===");
+                        System.out.println("Transactions en attente : " + mempool.size());
+                        System.out.println("┌──────────────────────────────────┬──────────────────┐");
+                        System.out.println("│ Transaction                      │ Frais            │");
+                        System.out.println("├──────────────────────────────────┼──────────────────┤");
+
+                        for (MempoolTransactionDTO tx : mempool) {
+                            String displayAddress = tx.isUserTx() ? ">>> VOTRE TX: " + tx.getId().toString().substring(0, 10) + "..."
+                                    : tx.getSourceAddress().substring(0, 10) + "...";
+                            System.out.printf("│ %-32s │ %6.8f       │%n", displayAddress, tx.getFee());
+                        }
+
+                        System.out.println("└──────────────────────────────────┴──────────────────┘");
 
                     } catch (IllegalArgumentException e) {
                         System.out.println("Invalid UUID format.");
