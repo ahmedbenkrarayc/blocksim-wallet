@@ -6,10 +6,14 @@ import com.blocksim.domain.entity.Wallet;
 import com.blocksim.presentation.dto.request.MempoolRequestDTO;
 import com.blocksim.presentation.dto.response.FeeComparisonResponseDTO;
 import com.blocksim.presentation.dto.response.MempoolResponseDTO;
+import com.blocksim.presentation.dto.response.MempoolTransactionDTO;
+import com.blocksim.presentation.dto.response.TransactionResponseDTO;
 
 import java.util.List;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class MempoolController {
     private final MempoolService mempoolService;
@@ -38,5 +42,18 @@ public class MempoolController {
 
     public List<FeeComparisonResponseDTO> compareFeeLevels(Transaction tx, Wallet wallet, int txPerBlock) {
         return mempoolService.compareFeeLevels(tx, wallet, txPerBlock);
+    }
+
+    public List<MempoolTransactionDTO> getMempool(UUID myTxId) {
+        List<Transaction> mempool = mempoolService.getMempoolWithRandomTransactions(myTxId);
+
+        return mempool.stream()
+                .map(tx -> new MempoolTransactionDTO(
+                        tx.getId(),
+                        tx.getSourceAddress(),
+                        tx.getFee(),
+                        tx.getId().equals(myTxId)
+                ))
+                .collect(Collectors.toList());
     }
 }
