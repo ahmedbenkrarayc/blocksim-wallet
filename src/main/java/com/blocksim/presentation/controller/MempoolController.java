@@ -2,7 +2,9 @@ package com.blocksim.presentation.controller;
 
 import com.blocksim.application.service.MempoolService;
 import com.blocksim.domain.entity.Transaction;
+import com.blocksim.domain.entity.Wallet;
 import com.blocksim.presentation.dto.request.MempoolRequestDTO;
+import com.blocksim.presentation.dto.response.FeeComparisonResponseDTO;
 import com.blocksim.presentation.dto.response.MempoolResponseDTO;
 
 import java.util.List;
@@ -32,5 +34,9 @@ public class MempoolController {
         } else {
             return new MempoolResponseDTO(false, -1, pending.size(), -1);
         }
+    }
+
+    public List<FeeComparisonResponseDTO> compareFeeLevels(Transaction tx, Wallet wallet, int txPerBlock) {
+        return mempoolService.compareFeeLevels(tx, wallet, txPerBlock);
     }
 }
