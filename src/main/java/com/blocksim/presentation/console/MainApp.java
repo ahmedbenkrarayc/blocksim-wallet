@@ -27,6 +27,8 @@ public class MainApp {
 
         Scanner scanner = new Scanner(System.in);
 
+        scanner.nextLine();
+
         System.out.println("=== Welcome to BlockSim Wallet App ===");
 
         int choice = -1;
